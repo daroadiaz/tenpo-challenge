@@ -1,0 +1,782 @@
+{
+	"info": {
+		"_postman_id": "tenpo-transactions-api-collection",
+		"name": "Tenpo Transactions API",
+		"description": "Coleccion completa para testing de la API de Transacciones de Tenpo.\n\n## Configuracion inicial\n1. Importar el environment adjunto\n2. Verificar que la variable `base_url` apunte al servidor correcto\n3. Ejecutar los requests en orden para flujos completos\n\n## Variables disponibles\n- `base_url`: URL base del servidor\n- `transaction_id`: ID de transaccion (se actualiza automaticamente)\n- `created_transaction_id`: ID de la ultima transaccion creada",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "transaction_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "created_transaction_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Transactions",
+			"description": "Endpoints para gestion de transacciones de Tenpistas",
+			"item": [
+				{
+					"name": "Listar Transacciones",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Response time is less than 500ms', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"if (pm.response.json().length > 0) {",
+									"    const firstTransaction = pm.response.json()[0];",
+									"    pm.collectionVariables.set('transaction_id', firstTransaction.id);",
+									"    ",
+									"    pm.test('Transaction has required fields', function () {",
+									"        pm.expect(firstTransaction).to.have.property('id');",
+									"        pm.expect(firstTransaction).to.have.property('amount');",
+									"        pm.expect(firstTransaction).to.have.property('merchantName');",
+									"        pm.expect(firstTransaction).to.have.property('tenpistName');",
+									"        pm.expect(firstTransaction).to.have.property('transactionDate');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Obtiene todas las transacciones ordenadas por fecha descendente.\n\n**Response:**\n- `200 OK`: Lista de transacciones\n- Array vacio si no hay transacciones"
+					},
+					"response": [
+						{
+							"name": "Lista de transacciones",
+							"originalRequest": {
+								"method": "GET",
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "[\n    {\n        \"id\": 1,\n        \"amount\": 25000,\n        \"merchantName\": \"Supermercado Lider\",\n        \"tenpistName\": \"Juan Perez\",\n        \"transactionDate\": \"2024-02-06T10:30:00\",\n        \"createdAt\": \"2024-02-06T12:00:00\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Obtener Transaccion por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has correct structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('amount');",
+									"    pm.expect(jsonData).to.have.property('merchantName');",
+									"    pm.expect(jsonData).to.have.property('tenpistName');",
+									"    pm.expect(jsonData).to.have.property('transactionDate');",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"});",
+									"",
+									"pm.test('ID matches requested ID', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const requestedId = parseInt(pm.collectionVariables.get('transaction_id'));",
+									"    pm.expect(jsonData.id).to.eql(requestedId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{transaction_id}}"]
+						},
+						"description": "Obtiene una transaccion especifica por su ID.\n\n**Path Parameters:**\n- `id`: ID de la transaccion\n\n**Response:**\n- `200 OK`: Transaccion encontrada\n- `404 Not Found`: Transaccion no existe"
+					},
+					"response": [
+						{
+							"name": "Transaccion encontrada",
+							"originalRequest": {
+								"method": "GET",
+								"url": {
+									"raw": "{{base_url}}/api/transactions/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "1"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"id\": 1,\n    \"amount\": 25000,\n    \"merchantName\": \"Supermercado Lider\",\n    \"tenpistName\": \"Juan Perez\",\n    \"transactionDate\": \"2024-02-06T10:30:00\",\n    \"createdAt\": \"2024-02-06T12:00:00\"\n}"
+						},
+						{
+							"name": "Transaccion no encontrada",
+							"originalRequest": {
+								"method": "GET",
+								"url": {
+									"raw": "{{base_url}}/api/transactions/9999",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "9999"]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"status\": 404,\n    \"error\": \"Not Found\",\n    \"message\": \"Transaccion no encontrada con id: 9999\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Crear Transaccion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has ID', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.collectionVariables.set('created_transaction_id', jsonData.id);",
+									"    pm.collectionVariables.set('transaction_id', jsonData.id);",
+									"});",
+									"",
+									"pm.test('Response matches request data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const requestData = JSON.parse(pm.request.body.raw);",
+									"    pm.expect(jsonData.amount).to.eql(requestData.amount);",
+									"    pm.expect(jsonData.merchantName).to.eql(requestData.merchantName);",
+									"    pm.expect(jsonData.tenpistName).to.eql(requestData.tenpistName);",
+									"});",
+									"",
+									"pm.test('CreatedAt is set', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('createdAt');",
+									"    pm.expect(jsonData.createdAt).to.not.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const now = new Date();",
+									"now.setHours(now.getHours() - 1);",
+									"pm.collectionVariables.set('transaction_date', now.toISOString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 45000,\n    \"merchantName\": \"Starbucks Providencia\",\n    \"tenpistName\": \"Carolina Martinez\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Crea una nueva transaccion.\n\n**Request Body:**\n- `amount` (integer, required): Monto de la transaccion (>= 0)\n- `merchantName` (string, required): Nombre del comercio\n- `tenpistName` (string, required): Nombre del Tenpista\n- `transactionDate` (ISO 8601, required): Fecha de la transaccion\n\n**Response:**\n- `201 Created`: Transaccion creada exitosamente\n- `400 Bad Request`: Datos invalidos"
+					},
+					"response": [
+						{
+							"name": "Transaccion creada",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 45000,\n    \"merchantName\": \"Starbucks Providencia\",\n    \"tenpistName\": \"Carolina Martinez\",\n    \"transactionDate\": \"2024-02-06T15:30:00\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions"]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"id\": 10,\n    \"amount\": 45000,\n    \"merchantName\": \"Starbucks Providencia\",\n    \"tenpistName\": \"Carolina Martinez\",\n    \"transactionDate\": \"2024-02-06T15:30:00\",\n    \"createdAt\": \"2024-02-06T16:00:00\"\n}"
+						},
+						{
+							"name": "Error de validacion",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": -100,\n    \"merchantName\": \"\",\n    \"tenpistName\": \"Test\",\n    \"transactionDate\": \"2024-02-06T15:30:00\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions"]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"status\": 400,\n    \"error\": \"Bad Request\",\n    \"message\": \"Error de validacion\",\n    \"errors\": {\n        \"amount\": \"El monto no puede ser negativo\",\n        \"merchantName\": \"El nombre del comercio es obligatorio\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Actualizar Transaccion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has updated data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const requestData = JSON.parse(pm.request.body.raw);",
+									"    pm.expect(jsonData.amount).to.eql(requestData.amount);",
+									"    pm.expect(jsonData.merchantName).to.eql(requestData.merchantName);",
+									"});",
+									"",
+									"pm.test('ID remains the same', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const requestedId = parseInt(pm.collectionVariables.get('transaction_id'));",
+									"    pm.expect(jsonData.id).to.eql(requestedId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 52000,\n    \"merchantName\": \"Starbucks Las Condes\",\n    \"tenpistName\": \"Carolina Martinez Gomez\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{transaction_id}}"]
+						},
+						"description": "Actualiza una transaccion existente.\n\n**Path Parameters:**\n- `id`: ID de la transaccion a actualizar\n\n**Request Body:**\n- `amount` (integer, required): Monto de la transaccion\n- `merchantName` (string, required): Nombre del comercio\n- `tenpistName` (string, required): Nombre del Tenpista\n- `transactionDate` (ISO 8601, required): Fecha de la transaccion\n\n**Response:**\n- `200 OK`: Transaccion actualizada\n- `404 Not Found`: Transaccion no existe\n- `400 Bad Request`: Datos invalidos"
+					},
+					"response": [
+						{
+							"name": "Transaccion actualizada",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 52000,\n    \"merchantName\": \"Starbucks Las Condes\",\n    \"tenpistName\": \"Carolina Martinez Gomez\",\n    \"transactionDate\": \"2024-02-06T15:30:00\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "1"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"id\": 1,\n    \"amount\": 52000,\n    \"merchantName\": \"Starbucks Las Condes\",\n    \"tenpistName\": \"Carolina Martinez Gomez\",\n    \"transactionDate\": \"2024-02-06T15:30:00\",\n    \"createdAt\": \"2024-02-06T12:00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Eliminar Transaccion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204', function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"pm.test('Response body is empty', function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{transaction_id}}"]
+						},
+						"description": "Elimina una transaccion existente.\n\n**Path Parameters:**\n- `id`: ID de la transaccion a eliminar\n\n**Response:**\n- `204 No Content`: Transaccion eliminada exitosamente\n- `404 Not Found`: Transaccion no existe"
+					},
+					"response": [
+						{
+							"name": "Transaccion eliminada",
+							"originalRequest": {
+								"method": "DELETE",
+								"url": {
+									"raw": "{{base_url}}/api/transactions/1",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "1"]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"body": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Flujos de Prueba",
+			"description": "Carpeta con flujos completos de prueba para ejecutar secuencialmente",
+			"item": [
+				{
+					"name": "Flujo CRUD Completo",
+					"description": "Ejecuta un flujo completo: Crear -> Leer -> Actualizar -> Eliminar",
+					"item": [
+						{
+							"name": "1. Crear nueva transaccion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 201', function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"const jsonData = pm.response.json();",
+											"pm.collectionVariables.set('crud_test_id', jsonData.id);",
+											"",
+											"pm.test('Transaction created with correct data', function () {",
+											"    pm.expect(jsonData.amount).to.eql(99999);",
+											"    pm.expect(jsonData.merchantName).to.eql('Test CRUD Flow');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 99999,\n    \"merchantName\": \"Test CRUD Flow\",\n    \"tenpistName\": \"Test User\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions"]
+								}
+							}
+						},
+						{
+							"name": "2. Verificar transaccion creada",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 200', function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test('Transaction data is correct', function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.amount).to.eql(99999);",
+											"    pm.expect(jsonData.merchantName).to.eql('Test CRUD Flow');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/transactions/{{crud_test_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "{{crud_test_id}}"]
+								}
+							}
+						},
+						{
+							"name": "3. Actualizar transaccion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 200', function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test('Transaction was updated', function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.amount).to.eql(88888);",
+											"    pm.expect(jsonData.merchantName).to.eql('Test CRUD Flow Updated');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 88888,\n    \"merchantName\": \"Test CRUD Flow Updated\",\n    \"tenpistName\": \"Test User Updated\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions/{{crud_test_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "{{crud_test_id}}"]
+								}
+							}
+						},
+						{
+							"name": "4. Eliminar transaccion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 204', function () {",
+											"    pm.response.to.have.status(204);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/transactions/{{crud_test_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "{{crud_test_id}}"]
+								}
+							}
+						},
+						{
+							"name": "5. Verificar eliminacion",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Status code is 404', function () {",
+											"    pm.response.to.have.status(404);",
+											"});",
+											"",
+											"pm.test('Transaction no longer exists', function () {",
+											"    const jsonData = pm.response.json();",
+											"    pm.expect(jsonData.message).to.include('no encontrada');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/transactions/{{crud_test_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "transactions", "{{crud_test_id}}"]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Validaciones",
+			"description": "Pruebas de validacion y manejo de errores",
+			"item": [
+				{
+					"name": "Error - Monto negativo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error message mentions amount', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const hasAmountError = JSON.stringify(jsonData).toLowerCase().includes('amount') || ",
+									"                          JSON.stringify(jsonData).toLowerCase().includes('monto');",
+									"    pm.expect(hasAmountError).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": -5000,\n    \"merchantName\": \"Test Merchant\",\n    \"tenpistName\": \"Test User\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						}
+					}
+				},
+				{
+					"name": "Error - Campos vacios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1000,\n    \"merchantName\": \"\",\n    \"tenpistName\": \"\",\n    \"transactionDate\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						}
+					}
+				},
+				{
+					"name": "Error - Transaccion no existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test('Error message is descriptive', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/999999",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "999999"]
+						}
+					}
+				},
+				{
+					"name": "Error - Eliminar transaccion inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/999999",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "999999"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"description": "Verificacion de estado del servidor",
+			"item": [
+				{
+					"name": "API Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('API is responding', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
