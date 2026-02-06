@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: tenpo-postgres
+    environment:
+      POSTGRES_DB: tenpo_db
+      POSTGRES_USER: tenpo_user
+      POSTGRES_PASSWORD: tenpo_pass_2024
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tenpo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenpo_user -d tenpo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tenpo-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tenpo_db
+      SPRING_DATASOURCE_USERNAME: tenpo_user
+      SPRING_DATASOURCE_PASSWORD: tenpo_pass_2024
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tenpo-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tenpo-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - tenpo-network
+
+networks:
+  tenpo-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
