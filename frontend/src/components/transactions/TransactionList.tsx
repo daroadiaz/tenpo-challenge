@@ -64,11 +64,11 @@ function TransactionList({ transactions, loading, onDelete, onEdit }: Transactio
           <tbody>
             {transactions.map((transaction) => (
               <tr key={transaction.id}>
-                <td>#{transaction.id}</td>
-                <td>{transaction.tenpistName}</td>
+                <td className="id-cell">#{transaction.id}</td>
+                <td className="merchant-cell">{transaction.tenpistName}</td>
                 <td>{transaction.merchantName}</td>
                 <td className="amount">{formatAmount(transaction.amount)}</td>
-                <td>{formatDate(transaction.transactionDate)}</td>
+                <td className="date-cell">{formatDate(transaction.transactionDate)}</td>
                 <td className="actions-cell">
                   <button
                     className="btn btn-secondary btn-icon"

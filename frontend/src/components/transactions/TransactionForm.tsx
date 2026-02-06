@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Loader2, Save, X } from 'lucide-react';
 import { Transaction, TransactionRequest } from '../../types/transaction';
 import { useEffect } from 'react';
 
@@ -148,13 +149,14 @@ function TransactionForm({ onSubmit, onCancel, loading, initialData }: Transacti
         )}
       </div>
 
-      <div className="modal-footer" style={{ padding: 0, border: 'none', marginTop: '24px' }}>
+      <div className="modal-footer" style={{ padding: 0, border: 'none', marginTop: '32px' }}>
         <button
           type="button"
           className="btn btn-secondary"
           onClick={onCancel}
           disabled={loading}
         >
+          <X size={16} />
           Cancelar
         </button>
         <button
@@ -162,7 +164,17 @@ function TransactionForm({ onSubmit, onCancel, loading, initialData }: Transacti
           className="btn btn-primary"
           disabled={loading}
         >
-          {loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Guardar'}
+          {loading ? (
+            <>
+              <Loader2 size={16} className="spinning" />
+              Guardando...
+            </>
+          ) : (
+            <>
+              <Save size={16} />
+              {isEditing ? 'Actualizar' : 'Guardar'}
+            </>
+          )}
         </button>
       </div>
     </form>

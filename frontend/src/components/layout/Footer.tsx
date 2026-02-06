@@ -5,8 +5,8 @@ function Footer() {
     <footer className="footer">
       <div className="container">
         <div className="footer-content">
-          <span>Tenpo Challenge - TL Fullstack {year}</span>
-          <span>Panel de Administracion de Transacciones</span>
+          <span>Tenpo Challenge {year}</span>
+          <span>Tech Lead Fullstack</span>
         </div>
       </div>
     </footer>
