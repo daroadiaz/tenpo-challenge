@@ -78,6 +78,11 @@ input, select, textarea {
   color: var(--color-tenpo-teal);
 }
 
+.logo-image {
+  height: 36px;
+  width: auto;
+}
+
 .main-content {
   padding: 40px 0;
 }

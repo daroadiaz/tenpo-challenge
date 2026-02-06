@@ -3,9 +3,11 @@ function Header() {
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <div className="logo">
-            te<span>N</span>po
-          </div>
+          <img
+            src="/tenpo-logo.png"
+            alt="Tenpo"
+            className="logo-image"
+          />
           <div className="badge badge-teal">Panel de Transacciones</div>
         </div>
       </div>
