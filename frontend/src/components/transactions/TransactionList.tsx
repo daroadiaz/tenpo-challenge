@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ClipboardList, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { Transaction } from '../../types/transaction';
 import { formatAmount, formatDate } from '../../utils/formatters';
 
@@ -34,7 +35,9 @@ function TransactionList({ transactions, loading, onDelete, onEdit }: Transactio
     return (
       <div className="card">
         <div className="empty-state">
-          <div className="empty-state-icon">📋</div>
+          <div className="empty-state-icon">
+            <ClipboardList size={48} strokeWidth={1.5} />
+          </div>
           <h3 className="empty-state-title">No hay transacciones</h3>
           <p className="empty-state-text">
             Comienza agregando una nueva transaccion
@@ -72,7 +75,7 @@ function TransactionList({ transactions, loading, onDelete, onEdit }: Transactio
                     onClick={() => onEdit(transaction)}
                     aria-label="Editar transaccion"
                   >
-                    ✏️
+                    <Pencil size={16} />
                   </button>
                   <button
                     className="btn btn-danger btn-icon"
@@ -80,7 +83,11 @@ function TransactionList({ transactions, loading, onDelete, onEdit }: Transactio
                     disabled={deletingId === transaction.id}
                     aria-label="Eliminar transaccion"
                   >
-                    {deletingId === transaction.id ? '...' : '🗑️'}
+                    {deletingId === transaction.id ? (
+                      <Loader2 size={16} className="spinning" />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
                   </button>
                 </td>
               </tr>

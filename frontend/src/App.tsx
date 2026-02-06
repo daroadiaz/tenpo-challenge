@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Plus, X } from 'lucide-react';
 import { Transaction, TransactionRequest } from './types/transaction';
 import { transactionApi } from './api/transactionApi';
 import Header from './components/layout/Header';
@@ -99,6 +100,7 @@ function App() {
               className="btn btn-primary"
               onClick={handleOpenCreateModal}
             >
+              <Plus size={18} />
               Nueva Transaccion
             </button>
           </div>
@@ -108,9 +110,10 @@ function App() {
               {error}
               <button
                 onClick={() => setError(null)}
-                style={{ marginLeft: '12px', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}
+                className="alert-close"
+                aria-label="Cerrar alerta"
               >
-                ×
+                <X size={16} />
               </button>
             </div>
           )}
