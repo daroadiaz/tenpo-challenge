@@ -13,6 +13,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -36,9 +37,23 @@ function App() {
       setSubmitting(true);
       await transactionApi.create(data);
       await fetchTransactions();
-      setIsModalOpen(false);
+      handleCloseModal();
     } catch {
       setError('Error al crear la transaccion');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (data: TransactionRequest) => {
+    if (!editingTransaction) return;
+    try {
+      setSubmitting(true);
+      await transactionApi.update(editingTransaction.id, data);
+      await fetchTransactions();
+      handleCloseModal();
+    } catch {
+      setError('Error al actualizar la transaccion');
     } finally {
       setSubmitting(false);
     }
@@ -51,6 +66,21 @@ function App() {
     } catch {
       setError('Error al eliminar la transaccion');
     }
+  };
+
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingTransaction(null);
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingTransaction(null);
+    setIsModalOpen(true);
   };
 
   return (
@@ -67,7 +97,7 @@ function App() {
             </div>
             <button
               className="btn btn-primary"
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenCreateModal}
             >
               Nueva Transaccion
             </button>
@@ -89,6 +119,7 @@ function App() {
             transactions={transactions}
             loading={loading}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       </main>
@@ -96,13 +127,14 @@ function App() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Nueva Transaccion"
+        onClose={handleCloseModal}
+        title={editingTransaction ? 'Editar Transaccion' : 'Nueva Transaccion'}
       >
         <TransactionForm
-          onSubmit={handleCreate}
-          onCancel={() => setIsModalOpen(false)}
+          onSubmit={editingTransaction ? handleUpdate : handleCreate}
+          onCancel={handleCloseModal}
           loading={submitting}
+          initialData={editingTransaction}
         />
       </Modal>
     </div>

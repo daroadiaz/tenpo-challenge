@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { TransactionRequest } from '../../types/transaction';
+import { Transaction, TransactionRequest } from '../../types/transaction';
+import { useEffect } from 'react';
 
 const transactionSchema = z.object({
   amount: z
@@ -31,12 +32,16 @@ interface TransactionFormProps {
   onSubmit: (data: TransactionRequest) => void;
   onCancel: () => void;
   loading: boolean;
+  initialData?: Transaction | null;
 }
 
-function TransactionForm({ onSubmit, onCancel, loading }: TransactionFormProps) {
+function TransactionForm({ onSubmit, onCancel, loading, initialData }: TransactionFormProps) {
+  const isEditing = !!initialData;
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(transactionSchema),
@@ -47,6 +52,24 @@ function TransactionForm({ onSubmit, onCancel, loading }: TransactionFormProps) 
       transactionDate: new Date().toISOString().slice(0, 16),
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        amount: initialData.amount,
+        merchantName: initialData.merchantName,
+        tenpistName: initialData.tenpistName,
+        transactionDate: initialData.transactionDate.slice(0, 16),
+      });
+    } else {
+      reset({
+        amount: 0,
+        merchantName: '',
+        tenpistName: '',
+        transactionDate: new Date().toISOString().slice(0, 16),
+      });
+    }
+  }, [initialData, reset]);
 
   const onFormSubmit = (data: FormData) => {
     const request: TransactionRequest = {
@@ -139,7 +162,7 @@ function TransactionForm({ onSubmit, onCancel, loading }: TransactionFormProps) 
           className="btn btn-primary"
           disabled={loading}
         >
-          {loading ? 'Guardando...' : 'Guardar Transaccion'}
+          {loading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Guardar'}
         </button>
       </div>
     </form>

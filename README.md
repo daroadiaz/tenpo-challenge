@@ -49,6 +49,7 @@ docker ps
 | GET | `/api/transactions` | Obtener todas las transacciones |
 | GET | `/api/transactions/{id}` | Obtener una transaccion por ID |
 | POST | `/api/transactions` | Crear nueva transaccion |
+| PUT | `/api/transactions/{id}` | Actualizar transaccion existente |
 | DELETE | `/api/transactions/{id}` | Eliminar transaccion |
 
 ### Ejemplos de Uso

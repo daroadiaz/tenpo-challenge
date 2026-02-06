@@ -157,6 +157,39 @@ class TransactionControllerTest {
     }
 
     @Test
+    void updateTransaction_ExistingId_ReturnsOk() throws Exception {
+        TransactionResponseDTO updatedResponse = TransactionResponseDTO.builder()
+                .id(1L)
+                .amount(20000)
+                .merchantName("Farmacia Ahumada")
+                .tenpistName("Juan Perez")
+                .transactionDate(LocalDateTime.now().minusHours(1))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(transactionService.updateTransaction(any(Long.class), any(TransactionRequestDTO.class)))
+                .thenReturn(updatedResponse);
+
+        mockMvc.perform(put("/api/transactions/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.amount").value(20000));
+    }
+
+    @Test
+    void updateTransaction_NonExistingId_ReturnsNotFound() throws Exception {
+        when(transactionService.updateTransaction(any(Long.class), any(TransactionRequestDTO.class)))
+                .thenThrow(new TransactionNotFoundException(999L));
+
+        mockMvc.perform(put("/api/transactions/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void deleteTransaction_ExistingId_ReturnsNoContent() throws Exception {
         doNothing().when(transactionService).deleteTransaction(1L);
 

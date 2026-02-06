@@ -118,6 +118,45 @@ class TransactionServiceTest {
     }
 
     @Test
+    void updateTransaction_ExistingId_ReturnsUpdatedTransaction() {
+        TransactionRequestDTO updateRequest = TransactionRequestDTO.builder()
+                .amount(20000)
+                .merchantName("Farmacia Ahumada")
+                .tenpistName("Juan Perez")
+                .transactionDate(LocalDateTime.now().minusHours(2))
+                .build();
+
+        Transaction updatedTransaction = Transaction.builder()
+                .id(1L)
+                .amount(20000)
+                .merchantName("Farmacia Ahumada")
+                .tenpistName("Juan Perez")
+                .transactionDate(updateRequest.getTransactionDate())
+                .createdAt(transaction.getCreatedAt())
+                .build();
+
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(transaction));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(updatedTransaction);
+
+        TransactionResponseDTO result = transactionService.updateTransaction(1L, updateRequest);
+
+        assertNotNull(result);
+        assertEquals(20000, result.getAmount());
+        assertEquals("Farmacia Ahumada", result.getMerchantName());
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
+    }
+
+    @Test
+    void updateTransaction_NonExistingId_ThrowsException() {
+        when(transactionRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(TransactionNotFoundException.class, () -> {
+            transactionService.updateTransaction(999L, requestDTO);
+        });
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
     void deleteTransaction_ExistingId_DeletesSuccessfully() {
         when(transactionRepository.existsById(1L)).thenReturn(true);
         doNothing().when(transactionRepository).deleteById(1L);

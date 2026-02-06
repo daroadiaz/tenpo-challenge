@@ -48,6 +48,21 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
+    public TransactionResponseDTO updateTransaction(Long id, TransactionRequestDTO request) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new TransactionNotFoundException(id));
+
+        transaction.setAmount(request.getAmount());
+        transaction.setMerchantName(request.getMerchantName());
+        transaction.setTenpistName(request.getTenpistName());
+        transaction.setTransactionDate(request.getTransactionDate());
+
+        Transaction updated = transactionRepository.save(transaction);
+        return toResponseDTO(updated);
+    }
+
+    @Override
+    @Transactional
     public void deleteTransaction(Long id) {
         if (!transactionRepository.existsById(id)) {
             throw new TransactionNotFoundException(id);

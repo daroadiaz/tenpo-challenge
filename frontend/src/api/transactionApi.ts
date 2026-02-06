@@ -24,6 +24,11 @@ export const transactionApi = {
     return response.data;
   },
 
+  update: async (id: number, data: TransactionRequest): Promise<Transaction> => {
+    const response = await api.put<Transaction>(`/transactions/${id}`, data);
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await api.delete(`/transactions/${id}`);
   },

@@ -6,9 +6,10 @@ interface TransactionListProps {
   transactions: Transaction[];
   loading: boolean;
   onDelete: (id: number) => void;
+  onEdit: (transaction: Transaction) => void;
 }
 
-function TransactionList({ transactions, loading, onDelete }: TransactionListProps) {
+function TransactionList({ transactions, loading, onDelete, onEdit }: TransactionListProps) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const handleDelete = async (id: number) => {
@@ -66,6 +67,13 @@ function TransactionList({ transactions, loading, onDelete }: TransactionListPro
                 <td className="amount">{formatAmount(transaction.amount)}</td>
                 <td>{formatDate(transaction.transactionDate)}</td>
                 <td className="actions-cell">
+                  <button
+                    className="btn btn-secondary btn-icon"
+                    onClick={() => onEdit(transaction)}
+                    aria-label="Editar transaccion"
+                  >
+                    ✏️
+                  </button>
                   <button
                     className="btn btn-danger btn-icon"
                     onClick={() => handleDelete(transaction.id)}
